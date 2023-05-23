@@ -24,6 +24,7 @@
 		<lombok.mapstruct.binding.version>0.2.0</lombok.mapstruct.binding.version>
 		<google.guava.version>31.0.1-jre</google.guava.version>
 		<jackson.nullable.version>0.2.1</jackson.nullable.version>
+		<apache.version>3.12.0</apache.version>
 	</properties>
 	<organization>
 		<name>PagoPa</name>
@@ -111,6 +112,11 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${google.guava.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${apache.version}</version>
 		</dependency>
 	</dependencies>
 	<build>

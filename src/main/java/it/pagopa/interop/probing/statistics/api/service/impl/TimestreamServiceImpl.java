@@ -1,6 +1,7 @@
 package it.pagopa.interop.probing.statistics.api.service.impl;
 
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +10,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
 import it.pagopa.interop.probing.statistics.api.service.TimestreamService;
@@ -51,7 +50,7 @@ public class TimestreamServiceImpl implements TimestreamService {
 
   @Override
   public List<StatisticContent> findStatistics(Long eserviceRecordId, Integer pollingFrequency)
-      throws JsonMappingException, JsonProcessingException, ParseException {
+      throws IOException, ParseException {
  // @formatter:off
     String queryString = "WITH binned_timeseries AS ("
         + "SELECT  BIN(time, "+pollingFrequency+"m) AS binned_timestamp, status, response_time " 
@@ -81,7 +80,7 @@ public class TimestreamServiceImpl implements TimestreamService {
   }
 
   private List<StatisticContent> parseQueryResult(QueryResponse response)
-      throws JsonMappingException, JsonProcessingException, ParseException {
+      throws IOException, ParseException {
     final QueryStatus queryStatus = response.queryStatus();
     List<StatisticContent> statistics = new ArrayList<>();
 

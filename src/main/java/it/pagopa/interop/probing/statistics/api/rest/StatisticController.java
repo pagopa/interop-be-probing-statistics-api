@@ -1,11 +1,10 @@
 package it.pagopa.interop.probing.statistics.api.rest;
 
+import java.io.IOException;
 import java.text.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import it.pagopa.interop.probing.statistics.api.EservicesApi;
 import it.pagopa.interop.probing.statistics.api.service.StatisticService;
 import it.pagopa.interop.probing.statistics.dtos.StatisticsEserviceResponse;
@@ -18,8 +17,7 @@ public class StatisticController implements EservicesApi {
 
   @Override
   public ResponseEntity<StatisticsEserviceResponse> statisticsEservices(Long eserviceRecordId,
-      Integer pollingFrequency)
-      throws JsonMappingException, JsonProcessingException, ParseException {
+      Integer pollingFrequency) throws IOException, ParseException {
     return ResponseEntity.ok(statisticService.findStatistics(eserviceRecordId, pollingFrequency));
   }
 }

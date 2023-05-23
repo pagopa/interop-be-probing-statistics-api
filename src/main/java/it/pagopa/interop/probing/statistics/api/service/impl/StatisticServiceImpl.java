@@ -1,13 +1,12 @@
 package it.pagopa.interop.probing.statistics.api.service.impl;
 
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import it.pagopa.interop.probing.statistics.api.service.StatisticService;
 import it.pagopa.interop.probing.statistics.api.service.TimestreamService;
 import it.pagopa.interop.probing.statistics.api.util.logging.Logger;
@@ -27,7 +26,7 @@ public class StatisticServiceImpl implements StatisticService {
 
   @Override
   public StatisticsEserviceResponse findStatistics(Long eserviceRecordId, Integer pollingFrequency)
-      throws JsonMappingException, JsonProcessingException, ParseException {
+      throws IOException, ParseException {
     logger.logRequest(eserviceRecordId, pollingFrequency);
     List<StatisticContent> content =
         timestreamService.findStatistics(eserviceRecordId, pollingFrequency);
