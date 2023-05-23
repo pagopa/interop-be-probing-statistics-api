@@ -1,7 +1,6 @@
 package it.pagopa.interop.probing.statistics.api.exception;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.List;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,20 +37,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemResponse);
   }
 
-  /**
-   * Manages the {@link ParseException} creating a new {@link ResponseEntity} and sending it to the
-   * client with error code 500 and information about the error
-   *
-   * @param ex The intercepted exception
-   * @return A new {@link ResponseEntity} with {@link Problem} body
-   */
-  @ExceptionHandler(ParseException.class)
-  protected ResponseEntity<Object> handleIOException(ParseException ex) {
-    log.logMessageException(ex);
-    Problem problemResponse = createProblem(HttpStatus.INTERNAL_SERVER_ERROR,
-        ErrorMessages.SERVER_ERROR, ErrorMessages.SERVER_ERROR);
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemResponse);
-  }
 
   /**
    * Creates an instance of type {@link Problem} following the RFC 7807 standard

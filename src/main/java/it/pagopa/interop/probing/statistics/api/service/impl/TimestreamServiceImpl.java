@@ -2,7 +2,6 @@ package it.pagopa.interop.probing.statistics.api.service.impl;
 
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +49,7 @@ public class TimestreamServiceImpl implements TimestreamService {
 
   @Override
   public List<StatisticContent> findStatistics(Long eserviceRecordId, Integer pollingFrequency)
-      throws IOException, ParseException {
+      throws IOException {
  // @formatter:off
     String queryString = "WITH binned_timeseries AS ("
         + "SELECT  BIN(time, "+pollingFrequency+"m) AS binned_timestamp, status, response_time " 
@@ -79,8 +78,7 @@ public class TimestreamServiceImpl implements TimestreamService {
 
   }
 
-  private List<StatisticContent> parseQueryResult(QueryResponse response)
-      throws IOException, ParseException {
+  private List<StatisticContent> parseQueryResult(QueryResponse response) throws IOException {
     final QueryStatus queryStatus = response.queryStatus();
     List<StatisticContent> statistics = new ArrayList<>();
 
@@ -95,7 +93,7 @@ public class TimestreamServiceImpl implements TimestreamService {
     return statistics;
   }
 
-  private String parseRow(List<ColumnInfo> columnInfo, Row row) throws ParseException {
+  private String parseRow(List<ColumnInfo> columnInfo, Row row) {
     List<Datum> data = row.data();
     List<String> rowOutput = new ArrayList<>();
     // iterate every column per row
@@ -106,14 +104,14 @@ public class TimestreamServiceImpl implements TimestreamService {
         rowOutput.stream().map(Object::toString).collect(Collectors.joining(",")));
   }
 
-  private String parseDatum(ColumnInfo info, Datum datum) throws ParseException {
+  private String parseDatum(ColumnInfo info, Datum datum) {
     if (Objects.nonNull(datum.nullValue()) && datum.nullValue()) {
       return "\"" + parseColumnName(info) + "\":null";
     }
     return parseScalarType(info, datum);
   }
 
-  private String parseScalarType(ColumnInfo info, Datum datum) throws ParseException {
+  private String parseScalarType(ColumnInfo info, Datum datum) {
     return "\"" + parseColumnName(info) + "\":\""
         + (parseColumnName(info).equals(TIME_MEASURE)
             ? dateUtilities.changeDateFormat(datum.scalarValue())

@@ -2,7 +2,6 @@ package it.pagopa.interop.probing.statistics.api.service.impl;
 
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class StatisticServiceImpl implements StatisticService {
 
   @Override
   public StatisticsEserviceResponse findStatistics(Long eserviceRecordId, Integer pollingFrequency)
-      throws IOException, ParseException {
+      throws IOException {
     logger.logRequest(eserviceRecordId, pollingFrequency);
     List<StatisticContent> content =
         timestreamService.findStatistics(eserviceRecordId, pollingFrequency);
