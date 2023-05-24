@@ -4,6 +4,9 @@ package it.pagopa.interop.probing.statistics.api.service.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import it.pagopa.interop.probing.statistics.api.service.StatisticService;
@@ -34,13 +37,22 @@ public class StatisticServiceImpl implements StatisticService {
     return StatisticsEserviceResponse.builder().values(content).percentages(percenteges).build();
   }
 
+  /**
+   * the functions deletes all the N/D data that are isolated from other N/D's, because of some
+   * false N/D given by the result interpolation of the timestream query
+   *
+   * @param statistics returned by the timestream query
+   * @return cleaned statistics
+   */
   private List<StatisticContent> cleanStatistics(List<StatisticContent> content) {
     List<StatisticContent> falseND = new ArrayList<>();
-    for (StatisticContent statistic : content) {
-      if (statistic.getStatus().equals(EserviceStatus.N_D)) {
-        if (!getNext(statistic, content).getStatus().equals(EserviceStatus.N_D)
-            && !getPrevious(statistic, content).getStatus().equals(EserviceStatus.N_D)) {
-          falseND.add(statistic);
+    // we ignore the first and last element because we cannot tell if they are isolated N/D
+    for (int i = 1; i < content.size() - 1; i++) {
+      if (content.get(i).getStatus().equals(EserviceStatus.N_D)) {
+        // checks if it is an isolated N/D
+        if (!content.get(i + 1).getStatus().equals(EserviceStatus.N_D)
+            && !content.get(i - 1).getStatus().equals(EserviceStatus.N_D)) {
+          falseND.add(content.get(i));
         }
       }
     }
@@ -48,31 +60,19 @@ public class StatisticServiceImpl implements StatisticService {
     return content;
   }
 
-  public StatisticContent getNext(StatisticContent statistic, List<StatisticContent> content) {
-    int idx = content.indexOf(statistic);
-    if (idx < 0 || idx + 1 == content.size())
-      return null;
-    return content.get(idx + 1);
-  }
-
-  public StatisticContent getPrevious(StatisticContent statistic, List<StatisticContent> content) {
-    int idx = content.indexOf(statistic);
-    if (idx <= 0)
-      return null;
-    return content.get(idx - 1);
-  }
 
   private List<PercentageContent> calculatePercentages(List<StatisticContent> values) {
     List<PercentageContent> percentages = new ArrayList<>();
+    Map<EserviceStatus, Float> fractions = values.stream()
+        .collect(Collectors.groupingBy(StatisticContent::getStatus, Collectors.collectingAndThen(
+            Collectors.counting(), count -> (count * 100 / Float.valueOf(values.size())))));
     for (EserviceStatus status : EserviceStatus.values()) {
-      Long filteredValues =
-          values.stream().filter(value -> value.getStatus().equals(status)).count();
       percentages.add(new PercentageContent(
-          values.size() > 0 ? filteredValues * (100 / Float.valueOf(values.size())) : 0,
-          status.getValue()));
+          Objects.nonNull(fractions.get(status)) ? fractions.get(status) : 0, status.getValue()));
     }
     return percentages;
   }
+
 
 
 }

@@ -52,16 +52,21 @@ public class TimestreamServiceImpl implements TimestreamService {
       throws IOException {
  // @formatter:off
     String queryString = "WITH binned_timeseries AS ("
+        //approximates the times using the polling frequency
         + "SELECT  BIN(time, "+pollingFrequency+"m) AS binned_timestamp, status, response_time " 
         + "FROM " + database + "." + table + " " 
         + "WHERE time between ago(1d) and now() "
         + "and eservice_record_id = '"+ eserviceRecordId + "' " 
         + "GROUP BY  BIN(time, "+pollingFrequency+"m) , status , response_time "
-        + "), interpolated_timeseries AS ( " 
+        + "), interpolated_timeseries AS ( "
+        //create a timestream timeseries in which all the times included in the sequence(2) but missing in the timeseries(1) are filled with N/D value 
         + "SELECT INTERPOLATE_FILL( "
+        //(1)creates a timestream timeseries with the approximated times and the status
         + "CREATE_TIME_SERIES(binned_timestamp, status), "
+        //(2)creates a sequence of times between the mix and max approximated times , dividing the data by the polling frequency
         + "SEQUENCE(min(binned_timestamp), max(binned_timestamp), "+pollingFrequency+"m),'N/D') AS interpolated_status "
-        + "FROM binned_timeseries)" 
+        + "FROM binned_timeseries)"
+        //selects the data created by the previous operations
         + "SELECT time,value as status,response_time "
         + "FROM interpolated_timeseries " 
         + "CROSS JOIN UNNEST(interpolated_status) "
