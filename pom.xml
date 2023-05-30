@@ -55,6 +55,11 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
 			<artifactId>timestreamquery</artifactId>
 		</dependency>
@@ -179,6 +184,7 @@
 								<serializableModel>true</serializableModel>
 								<interfaceOnly>true</interfaceOnly>
 								<unhandledException>true</unhandledException>
+								<useOptional>true</useOptional>
 							</configOptions>
 						</configuration>
 					</execution>
