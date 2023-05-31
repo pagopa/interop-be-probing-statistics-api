@@ -15,7 +15,7 @@ servers:
   - url: https://to-define/
     description: Development environment
 paths:
-  '/eservices/{eserviceRecordId}':
+  '/eservices/telemetryData/{eserviceRecordId}':
     get:
       summary: Retrive e-service statistics
       description: 'Retrive e-service statistics'
