@@ -4,12 +4,12 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import it.pagopa.interop.probing.statistics.api.EservicesApi;
+import it.pagopa.interop.probing.statistics.api.TelemetryDataApi;
 import it.pagopa.interop.probing.statistics.api.service.StatisticService;
 import it.pagopa.interop.probing.statistics.dtos.StatisticsEserviceResponse;
 
 @RestController
-public class StatisticController implements EservicesApi {
+public class StatisticController implements TelemetryDataApi {
 
   @Autowired
   private StatisticService statisticService;
