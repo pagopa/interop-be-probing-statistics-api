@@ -2,6 +2,7 @@ package it.pagopa.interop.probing.statistics.api.service.impl;
 
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import it.pagopa.interop.probing.statistics.api.service.StatisticService;
 import it.pagopa.interop.probing.statistics.api.service.TimestreamService;
-import it.pagopa.interop.probing.statistics.api.util.logging.Logger;
 import it.pagopa.interop.probing.statistics.dtos.EserviceStatus;
 import it.pagopa.interop.probing.statistics.dtos.PercentageContent;
 import it.pagopa.interop.probing.statistics.dtos.StatisticContent;
@@ -23,15 +23,13 @@ public class StatisticServiceImpl implements StatisticService {
   @Autowired
   private TimestreamService timestreamService;
 
-  @Autowired
-  private Logger logger;
+
 
   @Override
-  public StatisticsEserviceResponse findStatistics(Long eserviceRecordId, Integer pollingFrequency)
-      throws IOException {
-    logger.logRequest(eserviceRecordId, pollingFrequency);
+  public StatisticsEserviceResponse findStatistics(Long eserviceRecordId, Integer pollingFrequency,
+      OffsetDateTime startDate, OffsetDateTime endDate) throws IOException {
     List<StatisticContent> content =
-        timestreamService.findStatistics(eserviceRecordId, pollingFrequency);
+        timestreamService.findStatistics(eserviceRecordId, pollingFrequency, startDate, endDate);
     List<PercentageContent> percenteges = calculatePercentages(content);
     return StatisticsEserviceResponse.builder().values(content).percentages(percenteges).build();
   }

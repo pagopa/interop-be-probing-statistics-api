@@ -49,15 +49,15 @@ public class StatisticServiceImplTest {
   @DisplayName("The findStatistics method does not throw exception with empty result.")
   void testFindStatistics_thenDoesNotThrowException() throws IOException {
     List<StatisticContent> emptyResponse = List.of();
-    Mockito.when(timestreamService.findStatistics(1L, 5)).thenReturn(emptyResponse);
-    assertDoesNotThrow(() -> statisticService.findStatistics(1L, 5));
+    Mockito.when(timestreamService.findStatistics(1L, 5, null, null)).thenReturn(emptyResponse);
+    assertDoesNotThrow(() -> statisticService.findStatistics(1L, 5, null, null));
   }
 
   @Test
   @DisplayName("The findStatistics method successfully build a StatisticsEserviceResponse.")
   void testFindStatistics_thenSuccessfullyBuildResponse() throws IOException {
-    Mockito.when(timestreamService.findStatistics(1L, 5)).thenReturn(response);
-    StatisticsEserviceResponse response = statisticService.findStatistics(1L, 5);
+    Mockito.when(timestreamService.findStatistics(1L, 5, null, null)).thenReturn(response);
+    StatisticsEserviceResponse response = statisticService.findStatistics(1L, 5, null, null);
     assertTrue(response.getPercentages().size() > 0);
   }
 

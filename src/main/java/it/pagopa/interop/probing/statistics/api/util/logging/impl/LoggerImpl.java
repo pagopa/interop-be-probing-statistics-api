@@ -2,6 +2,7 @@ package it.pagopa.interop.probing.statistics.api.util.logging.impl;
 
 
 
+import java.time.OffsetDateTime;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 import it.pagopa.interop.probing.statistics.api.util.logging.Logger;
@@ -18,6 +19,14 @@ public class LoggerImpl implements Logger {
   }
 
   @Override
+  public void logFilterRequest(Long eserviceRecordId, Integer pollingFrequency,
+      OffsetDateTime startDate, OffsetDateTime endDate) {
+    log.info(
+        "Getting filtered telemetry. eserviceRecordId={} , pollingFrequency={}, startDate={}, endDate={}",
+        eserviceRecordId, pollingFrequency, startDate, endDate);
+  }
+
+  @Override
   public void logQueryProgress(Double queryProgress) {
     log.info("Query progress so far: {}%", queryProgress);
   }
@@ -26,7 +35,5 @@ public class LoggerImpl implements Logger {
   public void logMessageException(Exception exception) {
     log.error(ExceptionUtils.getStackTrace(exception));
   }
-
-
 
 }

@@ -86,6 +86,6 @@ public class TimestreamServiceImplTest {
     Mockito.when(iterator.iterator()).thenReturn(mockIter);
     Mockito.when(mockIter.hasNext()).thenReturn(true, false);
     Mockito.when(mockIter.next()).thenReturn(response);
-    assertDoesNotThrow(() -> timestreamService.findStatistics(1L, 5));
+    assertDoesNotThrow(() -> timestreamService.findStatistics(1L, 5, null, null));
   }
 }
