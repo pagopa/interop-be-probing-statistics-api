@@ -3,6 +3,7 @@ package it.pagopa.interop.probing.statistics.api.service.impl;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +46,8 @@ public class TimestreamServiceImpl implements TimestreamService {
 
   private static final String TIME_MEASURE = "time";
 
+  private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm";
+
   @Autowired
   private Logger logger;
 
@@ -57,8 +60,8 @@ public class TimestreamServiceImpl implements TimestreamService {
         + "SELECT  BIN(time, "+pollingFrequency+"m) AS binned_timestamp, status, response_time " 
         + "FROM " + database + "." + table + " " 
         + "WHERE time between " 
-        + (Objects.nonNull(startDate) ? "'" + startDate.toString().replace("T", " ").replace("Z", "") + "'" : "ago(1d)") 
-        +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.toString().replace("T", " ").replace("Z", "") + "'" : "now()") 
+        + (Objects.nonNull(startDate) ? "'" + startDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "ago(1d)") 
+        +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "now()") 
         + "and eservice_record_id = '"+ eserviceRecordId + "' " 
         + "GROUP BY  BIN(time, "+pollingFrequency+"m) , status , response_time "
         + "), interpolated_timeseries AS ( "
