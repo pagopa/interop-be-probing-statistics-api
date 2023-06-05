@@ -37,7 +37,7 @@ public class StatisticControllerTest {
   @MockBean
   private StatisticService service;
 
-  StatisticsEserviceResponse response;
+  private StatisticsEserviceResponse response;
 
   @Autowired
   private MockMvc mockMvc;
