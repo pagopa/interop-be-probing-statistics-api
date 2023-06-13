@@ -1,4 +1,4 @@
-package it.pagopa.interop.probing.statistics.tracing.config;
+package it.pagopa.interop.probing.statistics.api.tracing.config;
 
 import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;

@@ -26,6 +26,7 @@
 		<google.guava.version>31.0.1-jre</google.guava.version>
 		<jackson.nullable.version>0.2.1</jackson.nullable.version>
 		<apache.version>3.12.0</apache.version>
+		<com.amazonaws.version>2.11.0</com.amazonaws.version>
 	</properties>
 	<organization>
 		<name>PagoPa</name>
@@ -64,18 +65,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-aop</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor
-			</artifactId>
-			<version>2.14.0</version>
+			<artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
+			<version>${com.amazonaws.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
@@ -92,12 +88,12 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
-			<version>2.11.0</version>
+			<version>${com.amazonaws.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-xray-recorder-sdk-spring</artifactId>
-			<version>2.11.0</version>
+			<version>${com.amazonaws.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.openfeign</groupId>
