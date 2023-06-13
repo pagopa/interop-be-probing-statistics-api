@@ -27,6 +27,7 @@
 		<jackson.nullable.version>0.2.1</jackson.nullable.version>
 		<apache.version>3.12.0</apache.version>
 		<com.amazonaws.version>2.11.0</com.amazonaws.version>
+		<io.github.openfeign.version>12.3</io.github.openfeign.version>
 	</properties>
 	<organization>
 		<name>PagoPa</name>
@@ -98,7 +99,7 @@
 		<dependency>
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-httpclient</artifactId>
-			<version>12.3</version>
+			<version>${io.github.openfeign.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
