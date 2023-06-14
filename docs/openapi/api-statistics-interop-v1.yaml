@@ -14,7 +14,25 @@ info:
 servers:
   - url: https://to-define/
     description: Development environment
+tags:
+  - name: Telemetry
+    description: >-
+      Operations on EServices telemetry data
+  - name: Status
+    description: >-
+      Operations about micro-service status
+
 paths:
+  '/status':
+    get:
+      tags:
+        - Status
+      operationId: getHealthStatus
+      description: Get the micro-service status
+      responses:
+        '204':
+          description: The micro-service is running
+
   '/telemetryData/eservices/{eserviceRecordId}':
     get:
       summary: Retrive e-service statistics
