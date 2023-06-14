@@ -11,11 +11,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.amazonaws.xray.AWSXRay;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.CaseFormat;
 import it.pagopa.interop.probing.statistics.api.service.TimestreamService;
 import it.pagopa.interop.probing.statistics.api.util.logging.DateUtilities;
 import it.pagopa.interop.probing.statistics.api.util.logging.Logger;
+import it.pagopa.interop.probing.statistics.api.util.logging.LoggingPlaceholders;
 import it.pagopa.interop.probing.statistics.dtos.StatisticContent;
 import software.amazon.awssdk.services.timestreamquery.TimestreamQueryClient;
 import software.amazon.awssdk.services.timestreamquery.model.ColumnInfo;
@@ -80,11 +82,13 @@ public class TimestreamServiceImpl implements TimestreamService {
         + "ORDER BY time";
  // @formatter:on
     QueryRequest queryRequest = QueryRequest.builder().queryString(queryString).build();
+    AWSXRay.beginSubsegment(LoggingPlaceholders.TIMESTREAM_SUBSEGMENT_NAME);
     final QueryIterable queryResponseIterator = queryClient.queryPaginator(queryRequest);
     List<StatisticContent> content = new ArrayList<>();
     for (QueryResponse queryResponse : queryResponseIterator) {
       content.addAll(parseQueryResult(queryResponse));
     }
+    AWSXRay.endSubsegment();
     return content;
 
   }
