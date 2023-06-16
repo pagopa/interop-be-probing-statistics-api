@@ -14,13 +14,31 @@ info:
 servers:
   - url: https://to-define/
     description: Development environment
+tags:
+  - name: Telemetry
+    description: >-
+      Operations on EServices telemetry data
+  - name: Status
+    description: >-
+      Operations about micro-service status
+
 paths:
+  '/status':
+    get:
+      tags:
+        - Status
+      operationId: getHealthStatus
+      description: Get the micro-service status
+      responses:
+        '204':
+          description: The micro-service is running
+
   '/telemetryData/eservices/{eserviceRecordId}':
     get:
       summary: Retrive e-service statistics
       description: 'Retrive e-service statistics'
       tags:
-        - Read
+        - Telemetry
       operationId: statisticsEservices
       parameters:
         - name: eserviceRecordId
@@ -68,7 +86,7 @@ paths:
       summary: Retrive filtered e-service statistics
       description: 'Retrive filtered e-service statistics'
       tags:
-        - Read
+        - Telemetry
       operationId: filteredStatisticsEservices
       parameters:
         - name: eserviceRecordId
@@ -124,8 +142,6 @@ paths:
                 detail: 'There is a problem processing the request on the server.'
                 traceId: 'string'
                 errors: [ { 'code': '000-1234', 'detail': 'The server is currently down for maintenance. Please try again later.' } ]
-
-  
 
 components:
   schemas:
