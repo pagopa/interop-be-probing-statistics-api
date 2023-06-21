@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
+import com.amazonaws.xray.AWSXRay;
 import it.pagopa.interop.probing.statistics.api.service.TimestreamService;
 import it.pagopa.interop.probing.statistics.api.service.impl.TimestreamServiceImpl;
 import software.amazon.awssdk.services.timestreamquery.TimestreamQueryClient;
@@ -42,7 +44,6 @@ public class TimestreamServiceImplTest {
   @Mock
   Iterator<QueryResponse> mockIter;
 
-
   QueryRequest queryRequest;
 
   QueryResponse response;
@@ -59,6 +60,7 @@ public class TimestreamServiceImplTest {
 
   @BeforeEach
   void setup() {
+    AWSXRay.beginSegment("test");
     ReflectionTestUtils.setField(timestreamService, "database", "test_database");
     ReflectionTestUtils.setField(timestreamService, "table", "test_table");
     response =
@@ -79,6 +81,11 @@ public class TimestreamServiceImplTest {
             .build();
   }
 
+  @AfterEach
+  void clean() {
+    AWSXRay.endSegment();
+  }
+
   @Test
   @DisplayName("The findStatistics method successfully build a List of StatisticContent.")
   void testFindStatistics_thenSuccessfullyBuildStatisticContent() throws IOException {
@@ -88,4 +95,5 @@ public class TimestreamServiceImplTest {
     Mockito.when(mockIter.next()).thenReturn(response);
     assertDoesNotThrow(() -> timestreamService.findStatistics(1L, 5, null, null));
   }
+
 }
