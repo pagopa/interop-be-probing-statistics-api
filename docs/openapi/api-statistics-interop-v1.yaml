@@ -173,8 +173,13 @@ components:
     StatisticsEserviceResponse:
       type: object
       properties:
-        values:
+        performances:
           title: eservice status values list
+          type: array
+          items:
+            $ref: '#/components/schemas/StatisticContent'
+        failures:
+          title: eservice status failures list
           type: array
           items:
             $ref: '#/components/schemas/StatisticContent'

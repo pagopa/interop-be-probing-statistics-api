@@ -54,7 +54,7 @@ public class StatisticControllerTest {
   @BeforeEach
   void setup() {
     response = StatisticsEserviceResponse.builder()
-        .values(List.of(
+        .performances(List.of(
             StatisticContent.builder().status(EserviceStatus.KO)
                 .time(OffsetDateTime.of(2023, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)).build(),
             StatisticContent.builder().status(EserviceStatus.OK)
