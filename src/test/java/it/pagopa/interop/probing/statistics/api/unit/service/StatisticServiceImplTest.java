@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 import it.pagopa.interop.probing.statistics.api.service.StatisticService;
 import it.pagopa.interop.probing.statistics.api.service.TimestreamService;
 import it.pagopa.interop.probing.statistics.api.service.impl.StatisticServiceImpl;
@@ -37,6 +38,10 @@ public class StatisticServiceImplTest {
 
   @BeforeEach
   void setup() {
+    ReflectionTestUtils.setField(statisticService, "performancePrecision", 24);
+    ReflectionTestUtils.setField(statisticService, "performanceTolerance", 2);
+    ReflectionTestUtils.setField(statisticService, "failurePrecision", 96);
+    ReflectionTestUtils.setField(statisticService, "failureTolerance", 4);
     response = List.of(
         StatisticContent.builder().status(EserviceStatus.KO)
             .time(OffsetDateTime.of(2023, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)).build(),
