@@ -69,6 +69,7 @@ public class TimestreamServiceImpl implements TimestreamService {
         +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "now() ") 
         + "and eservice_record_id = '"+ eserviceRecordId + "') "
         + "WHERE seqnum = 1 "
+        + "ORDER BY  BIN(time, "+pollingFrequency+"m)"
         + "), interpolated_timeseries AS ( "
         //create a timestream timeseries in which all the times included in the sequence(2) but missing in the timeseries(1) are filled with N/D value 
         + "SELECT INTERPOLATE_FILL( "
