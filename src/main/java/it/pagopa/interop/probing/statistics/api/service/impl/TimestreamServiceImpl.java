@@ -59,22 +59,16 @@ public class TimestreamServiceImpl implements TimestreamService {
  // @formatter:off
     String queryString = "WITH binned_timeseries AS ("
         //approximates the times using the polling frequency
-        + "SELECT  BIN(v.time, "+pollingFrequency+"m) AS binned_timestamp, v.status, v.response_time " 
-        + "FROM " + database + "." + table + " v " 
-        //this join deletes all the duplicates time that will be created with the approximation
-        + "INNER JOIN "
-        + "(SELECT h.*,row_number() over (partition by BIN(h.time, "+pollingFrequency+"m) order by BIN(h.time, "+pollingFrequency+"m) desc) as seqnum "
-        + "FROM  " + database + "." + table + " h  "
-        + "WHERE h.time between " 
+        + "SELECT  BIN(time, "+pollingFrequency+"m) AS binned_timestamp, status, response_time " 
+        + "FROM "
+        //this select with the where condition on seqnum deletes all the duplicates time that will be created with the approximation keeping the lowest time
+        + "(SELECT *,row_number() over (partition by BIN(time, "+pollingFrequency+"m) order by BIN(time, "+pollingFrequency+"m) desc) as seqnum "
+        + "FROM  " + database + "." + table + " "
+        + "WHERE time between " 
         + (Objects.nonNull(startDate) ? "'" + startDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "ago(1d) ") 
         +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "now() ") 
-        + "and h.eservice_record_id = '"+ eserviceRecordId + "') h "
-        + "ON v.time = h.time and h.seqnum = 1 "
-        + "WHERE v.time between " 
-        + (Objects.nonNull(startDate) ? "'" + startDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "ago(1d)") 
-        +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "now()") 
-        + "and v.eservice_record_id = '"+ eserviceRecordId + "' " 
-        + "GROUP BY  BIN(v.time, "+pollingFrequency+"m) , v.status , v.response_time "
+        + "and eservice_record_id = '"+ eserviceRecordId + "') "
+        + "WHERE seqnum = 1 "
         + "), interpolated_timeseries AS ( "
         //create a timestream timeseries in which all the times included in the sequence(2) but missing in the timeseries(1) are filled with N/D value 
         + "SELECT INTERPOLATE_FILL( "
