@@ -60,12 +60,16 @@ public class TimestreamServiceImpl implements TimestreamService {
     String queryString = "WITH binned_timeseries AS ("
         //approximates the times using the polling frequency
         + "SELECT  BIN(time, "+pollingFrequency+"m) AS binned_timestamp, status, response_time " 
-        + "FROM " + database + "." + table + " " 
+        + "FROM "
+        //this select with the where condition on seqnum deletes all the duplicates time that will be created with the approximation keeping the lowest time
+        + "(SELECT *,row_number() over (partition by BIN(time, "+pollingFrequency+"m) order by BIN(time, "+pollingFrequency+"m) desc) as seqnum "
+        + "FROM  " + database + "." + table + " "
         + "WHERE time between " 
-        + (Objects.nonNull(startDate) ? "'" + startDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "ago(1d)") 
-        +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "now()") 
-        + "and eservice_record_id = '"+ eserviceRecordId + "' " 
-        + "GROUP BY  BIN(time, "+pollingFrequency+"m) , status , response_time "
+        + (Objects.nonNull(startDate) ? "'" + startDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "ago(1d) ") 
+        +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "now() ") 
+        + "and eservice_record_id = '"+ eserviceRecordId + "') "
+        + "WHERE seqnum = 1 "
+        + "ORDER BY  BIN(time, "+pollingFrequency+"m)"
         + "), interpolated_timeseries AS ( "
         //create a timestream timeseries in which all the times included in the sequence(2) but missing in the timeseries(1) are filled with N/D value 
         + "SELECT INTERPOLATE_FILL( "
