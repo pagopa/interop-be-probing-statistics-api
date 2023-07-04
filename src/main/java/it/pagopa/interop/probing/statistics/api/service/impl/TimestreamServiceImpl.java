@@ -47,6 +47,9 @@ public class TimestreamServiceImpl implements TimestreamService {
   @Value("${amazon.timestream.table}")
   private String table;
 
+  @Value("${graph.max.months}")
+  private Long maxMonths;
+
   private static final String TIME_MEASURE = "time";
 
   private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm";
@@ -63,8 +66,8 @@ public class TimestreamServiceImpl implements TimestreamService {
     Long months = 1L;
     if (Objects.nonNull(startDate) && Objects.nonNull(endDate)) {
       months += (ChronoUnit.DAYS.between(startDate, endDate) / 30);
-      if (months > 3) {
-        months = 3L;
+      if (months > maxMonths) {
+        months = maxMonths;
       }
     }
 
