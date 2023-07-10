@@ -63,6 +63,7 @@ public class TimestreamServiceImplTest {
     AWSXRay.beginSegment("test");
     ReflectionTestUtils.setField(timestreamService, "database", "test_database");
     ReflectionTestUtils.setField(timestreamService, "table", "test_table");
+    ReflectionTestUtils.setField(timestreamService, "maxMonths", 3L);
     response =
         QueryResponse.builder()
             .queryStatus(QueryStatus.builder().progressPercentage(100.00).build())

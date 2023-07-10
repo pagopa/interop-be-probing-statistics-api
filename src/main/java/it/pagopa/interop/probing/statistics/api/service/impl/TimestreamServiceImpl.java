@@ -4,6 +4,7 @@ package it.pagopa.interop.probing.statistics.api.service.impl;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -46,6 +47,9 @@ public class TimestreamServiceImpl implements TimestreamService {
   @Value("${amazon.timestream.table}")
   private String table;
 
+  @Value("${graph.max.months}")
+  private Long maxMonths;
+
   private static final String TIME_MEASURE = "time";
 
   private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm";
@@ -56,30 +60,44 @@ public class TimestreamServiceImpl implements TimestreamService {
   @Override
   public List<StatisticContent> findStatistics(Long eserviceRecordId, Integer pollingFrequency,
       OffsetDateTime startDate, OffsetDateTime endDate) throws IOException {
+    // if we have a very wide range of time, we need to increase the granularity of the
+    // pollingFrequency in order to make the interpolation possible, because the sequence cant
+    // exceed 10000 entries.
+    Long months = 1L;
+    if (Objects.nonNull(startDate) && Objects.nonNull(endDate)) {
+      months += (ChronoUnit.DAYS.between(startDate, endDate) / 30);
+      if (months > maxMonths) {
+        months = maxMonths;
+      }
+    }
+
  // @formatter:off
     String queryString = "WITH binned_timeseries AS ("
         //approximates the times using the polling frequency
-        + "SELECT  BIN(time, "+pollingFrequency+"m) AS binned_timestamp, status, response_time " 
+        + "SELECT binned_timestamp, status, avg_response_time " 
         + "FROM "
         //this select with the where condition on seqnum deletes all the duplicates time that will be created with the approximation keeping the lowest time
-        + "(SELECT *,row_number() over (partition by BIN(time, "+pollingFrequency+"m) order by BIN(time, "+pollingFrequency+"m) desc) as seqnum "
+        + "(SELECT * ,  row_number() over (partition by binned_timestamp order by binned_timestamp desc) as seqnum FROM "
+        + "(SELECT eservice_record_id ,status,bin(time,"+ (pollingFrequency * months) +"m) as binned_timestamp, cast(avg(response_time) as int) as avg_response_time "
         + "FROM  " + database + "." + table + " "
         + "WHERE time between " 
-        + (Objects.nonNull(startDate) ? "'" + startDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "ago(1d) ") 
-        +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "'" : "now() ") 
-        + "and eservice_record_id = '"+ eserviceRecordId + "') "
+        + (Objects.nonNull(startDate) ? "'" + startDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "' " : "ago(1d) ") 
+        +" and "+ (Objects.nonNull(endDate) ? "'" + endDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "' " : "now() ") 
+        + "and eservice_record_id = '"+ eserviceRecordId + "' "
+        + "group by eservice_record_id ,bin(time,"+ (pollingFrequency * months) +"m),status) "
+        + ") "
         + "WHERE seqnum = 1 "
-        + "ORDER BY  BIN(time, "+pollingFrequency+"m)"
+        + "ORDER BY  binned_timestamp"
         + "), interpolated_timeseries AS ( "
         //create a timestream timeseries in which all the times included in the sequence(2) but missing in the timeseries(1) are filled with N/D value 
         + "SELECT INTERPOLATE_FILL( "
         //(1)creates a timestream timeseries with the approximated times and the status
         + "CREATE_TIME_SERIES(binned_timestamp, status), "
         //(2)creates a sequence of times between the mix and max approximated times , dividing the data by the polling frequency
-        + "SEQUENCE(min(binned_timestamp), max(binned_timestamp), "+pollingFrequency+"m),'N/D') AS interpolated_status "
+        + "SEQUENCE(min(binned_timestamp), max(binned_timestamp), "+ (pollingFrequency * months) +"m),'N/D') AS interpolated_status "
         + "FROM binned_timeseries)"
         //selects the data created by the previous operations
-        + "SELECT time,value as status,response_time "
+        + "SELECT time,value as status,avg_response_time as response_time "
         + "FROM interpolated_timeseries " 
         + "CROSS JOIN UNNEST(interpolated_status) "
         + "LEFT JOIN binned_timeseries s on s.binned_timestamp = time " 
