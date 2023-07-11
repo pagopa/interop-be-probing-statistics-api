@@ -51,7 +51,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemError errorDetails =
         ProblemError.builder().code(responseCode.toString()).detail(detailMessage).build();
     return Problem.builder().status(responseCode.value()).title(titleMessage).detail(detailMessage)
-        .traceId(MDC.get(LoggingPlaceholders.TRACE_ID_PLACEHOLDER)).errors(List.of(errorDetails))
-        .build();
+        .traceId(MDC.get(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER))
+        .errors(List.of(errorDetails)).build();
   }
 }
