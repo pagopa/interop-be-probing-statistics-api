@@ -75,7 +75,7 @@ public class StatisticControllerTest {
             .andReturn().getResponse();
 
     assertEquals(response.getStatus(), HttpStatus.OK.value());
-    assertTrue(response.getContentAsString().contains("values"));
+    assertTrue(response.getContentAsString().contains("performances"));
   }
 
   @Test
@@ -90,7 +90,7 @@ public class StatisticControllerTest {
         .andReturn().getResponse();
 
     assertEquals(response.getStatus(), HttpStatus.OK.value());
-    assertTrue(response.getContentAsString().contains("values"));
+    assertTrue(response.getContentAsString().contains("performances"));
   }
 
   private LinkedMultiValueMap<String, String> getMockRequestParamsTelemetryData(
