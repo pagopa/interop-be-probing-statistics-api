@@ -2,16 +2,15 @@ package it.pagopa.interop.probing.statistics.api.exception;
 
 import java.io.IOException;
 import java.util.List;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import com.amazonaws.xray.AWSXRay;
 import it.pagopa.interop.probing.statistics.api.util.constants.ErrorMessages;
 import it.pagopa.interop.probing.statistics.api.util.logging.Logger;
-import it.pagopa.interop.probing.statistics.api.util.logging.LoggingPlaceholders;
 import it.pagopa.interop.probing.statistics.dtos.Problem;
 import it.pagopa.interop.probing.statistics.dtos.ProblemError;
 
@@ -51,7 +50,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemError errorDetails =
         ProblemError.builder().code(responseCode.toString()).detail(detailMessage).build();
     return Problem.builder().status(responseCode.value()).title(titleMessage).detail(detailMessage)
-        .traceId(MDC.get(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER))
-        .errors(List.of(errorDetails)).build();
+        .traceId(AWSXRay.getCurrentSegment().getTraceId().toString()).errors(List.of(errorDetails))
+        .build();
   }
 }
