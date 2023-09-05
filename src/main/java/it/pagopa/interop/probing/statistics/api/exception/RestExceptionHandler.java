@@ -2,6 +2,7 @@ package it.pagopa.interop.probing.statistics.api.exception;
 
 import java.io.IOException;
 import java.util.List;
+import org.slf4j.MDC;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.amazonaws.xray.AWSXRay;
 import it.pagopa.interop.probing.statistics.api.util.constants.ErrorMessages;
 import it.pagopa.interop.probing.statistics.api.util.logging.Logger;
+import it.pagopa.interop.probing.statistics.api.util.logging.LoggingPlaceholders;
 import it.pagopa.interop.probing.statistics.dtos.Problem;
 import it.pagopa.interop.probing.statistics.dtos.ProblemError;
 
@@ -49,7 +51,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   @Override
   protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
       HttpStatus status, WebRequest request) {
-    log.logMessageException(ex);
+    handleException(ex);
     Problem problemResponse =
         createProblem(HttpStatus.BAD_REQUEST, ErrorMessages.BAD_REQUEST, ErrorMessages.BAD_REQUEST);
     return ResponseEntity.status(status).body(problemResponse);
@@ -70,5 +72,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     return Problem.builder().status(responseCode.value()).title(titleMessage).detail(detailMessage)
         .traceId(AWSXRay.getCurrentSegment().getTraceId().toString()).errors(List.of(errorDetails))
         .build();
+  }
+
+  private void handleException(Exception ex) {
+    MDC.put(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER,
+        LoggingPlaceholders.TRACE_ID_XRAY_MDC_PREFIX
+            + AWSXRay.getCurrentSegment().getTraceId().toString() + "]");
+    log.logMessageException(ex);
   }
 }
