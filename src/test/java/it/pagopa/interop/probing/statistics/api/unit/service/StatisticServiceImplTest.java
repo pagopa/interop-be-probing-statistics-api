@@ -38,9 +38,7 @@ public class StatisticServiceImplTest {
 
   @BeforeEach
   void setup() {
-    ReflectionTestUtils.setField(statisticService, "performancePrecision", 24);
     ReflectionTestUtils.setField(statisticService, "performanceTolerance", 2);
-    ReflectionTestUtils.setField(statisticService, "failurePrecision", 96);
     ReflectionTestUtils.setField(statisticService, "failureTolerance", 4);
     response = List.of(
         StatisticContent.builder().status(EserviceStatus.KO)

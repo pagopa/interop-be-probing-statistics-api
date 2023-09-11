@@ -1,5 +1,6 @@
 package it.pagopa.interop.probing.statistics.api.util.logging;
 
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,5 +15,14 @@ public class DateUtilities {
     ZonedDateTime date = ZonedDateTime.parse(dateString, dateformatter);
     return date.toOffsetDateTime().toString();
   }
+
+  public OffsetDateTime zeroDate(OffsetDateTime inputDate) {
+    DateTimeFormatter dateformatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
+    String startDateTrunc = inputDate.toString().substring(0, 13) + ":00:00.000";
+    ZonedDateTime date = ZonedDateTime.parse(startDateTrunc.replace("T", " "), dateformatter);
+    return date.toOffsetDateTime();
+  }
+
 
 }
