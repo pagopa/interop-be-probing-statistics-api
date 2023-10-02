@@ -61,20 +61,21 @@ public class StatisticServiceImpl implements StatisticService {
     List<StatisticContent> performances = new ArrayList<>();
     if (values.size() > 0) {
       OffsetDateTime startDateZero = values.get(0).getTime();
-      Long numberDays = 1L;
+      Long numberWeeks = 1L;
       if (Objects.nonNull(startDate) && Objects.nonNull(endDate)) {
-        numberDays = numberDays * ChronoUnit.DAYS.between(startDate, endDate);
-        if (numberDays < 1) {
-          numberDays = 1L;
+        numberWeeks = ChronoUnit.DAYS.between(startDate, endDate) / 7 * 6;
+        if (numberWeeks < 1) {
+          numberWeeks = 1L;
         }
       }
       OffsetDateTime now = OffsetDateTime.now();
       // Remove the minute and seconds from the date that will be used to group the telemetries
-      startDateZero = dateUtilities.zeroDate(startDateZero);
+      startDateZero = dateUtilities.zeroDate(startDateZero, !numberWeeks.equals(1L));
       while (startDateZero.isBefore(now)) {
         OffsetDateTime innerStartDatezero = startDateZero;
+        Long innerNumberWeeks = numberWeeks;
         List<StatisticContent> hourStatistic = values.stream()
-            .filter(el -> el.getTime().isBefore(innerStartDatezero.plusHours(1L))
+            .filter(el -> el.getTime().isBefore(innerStartDatezero.plusHours(innerNumberWeeks))
                 && (el.getTime().isAfter(innerStartDatezero)
                     || el.getTime().isEqual(innerStartDatezero)))
             .collect(Collectors.toList());
@@ -95,7 +96,7 @@ public class StatisticServiceImpl implements StatisticService {
         performances.add(performance);
 
         failures.addAll(calculateFailures(hourStatistic));
-        startDateZero = startDateZero.plusHours(numberDays);
+        startDateZero = startDateZero.plusHours(numberWeeks);
       }
     }
     return StatisticsEserviceResponse.builder().performances(performances).failures(failures)

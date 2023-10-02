@@ -16,10 +16,10 @@ public class DateUtilities {
     return date.toOffsetDateTime().toString();
   }
 
-  public OffsetDateTime zeroDate(OffsetDateTime inputDate) {
+  public OffsetDateTime zeroDate(OffsetDateTime inputDate , boolean multipleDays) {
     DateTimeFormatter dateformatter =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
-    String startDateTrunc = inputDate.toString().substring(0, 13) + ":00:00.000";
+    String startDateTrunc = multipleDays ? inputDate.toString().substring(0, 11) + "00:00:00.000" : inputDate.toString().substring(0, 13) + ":00:00.000";
     ZonedDateTime date = ZonedDateTime.parse(startDateTrunc.replace("T", " "), dateformatter);
     return date.toOffsetDateTime();
   }
