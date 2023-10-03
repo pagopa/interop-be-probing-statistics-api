@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import it.pagopa.interop.probing.statistics.api.service.StatisticService;
 import it.pagopa.interop.probing.statistics.api.service.TimestreamService;
-import it.pagopa.interop.probing.statistics.api.util.logging.DateUtilities;
 import it.pagopa.interop.probing.statistics.dtos.EserviceStatus;
 import it.pagopa.interop.probing.statistics.dtos.PercentageContent;
 import it.pagopa.interop.probing.statistics.dtos.StatisticContent;
@@ -31,9 +30,6 @@ public class StatisticServiceImpl implements StatisticService {
 
   @Value("${graph.failure.tolerance}")
   private Integer failureTolerance;
-
-  @Autowired
-  private DateUtilities dateUtilities;
 
   @Override
   public StatisticsEserviceResponse findStatistics(Long eserviceRecordId, Integer pollingFrequency,
@@ -61,21 +57,24 @@ public class StatisticServiceImpl implements StatisticService {
     List<StatisticContent> performances = new ArrayList<>();
     if (values.size() > 0) {
       OffsetDateTime startDateZero = values.get(0).getTime();
-      Long numberWeeks = 1L;
+      Long granularityPerWeeks = 1L;
       if (Objects.nonNull(startDate) && Objects.nonNull(endDate)) {
-        numberWeeks = ChronoUnit.DAYS.between(startDate, endDate) / 7 * 6;
-        if (numberWeeks < 1) {
-          numberWeeks = 1L;
+        // Group the telemetries in intervals of 6 hours for every week except for the first week ,
+        // in which the telemetries are grouped for every hour
+        granularityPerWeeks = ChronoUnit.WEEKS.between(startDate, endDate) * 6;
+        if (granularityPerWeeks < 1) {
+          granularityPerWeeks = 1L;
         }
       }
       OffsetDateTime now = OffsetDateTime.now();
       // Remove the minute and seconds from the date that will be used to group the telemetries
-      startDateZero = dateUtilities.zeroDate(startDateZero, !numberWeeks.equals(1L));
+      startDateZero = startDateZero
+          .truncatedTo(!granularityPerWeeks.equals(1L) ? ChronoUnit.DAYS : ChronoUnit.HOURS);
       while (startDateZero.isBefore(now)) {
         OffsetDateTime innerStartDatezero = startDateZero;
-        Long innerNumberWeeks = numberWeeks;
+        Long innerGranularity = granularityPerWeeks;
         List<StatisticContent> hourStatistic = values.stream()
-            .filter(el -> el.getTime().isBefore(innerStartDatezero.plusHours(innerNumberWeeks))
+            .filter(el -> el.getTime().isBefore(innerStartDatezero.plusHours(innerGranularity))
                 && (el.getTime().isAfter(innerStartDatezero)
                     || el.getTime().isEqual(innerStartDatezero)))
             .collect(Collectors.toList());
@@ -96,7 +95,7 @@ public class StatisticServiceImpl implements StatisticService {
         performances.add(performance);
 
         failures.addAll(calculateFailures(hourStatistic));
-        startDateZero = startDateZero.plusHours(numberWeeks);
+        startDateZero = startDateZero.plusHours(granularityPerWeeks);
       }
     }
     return StatisticsEserviceResponse.builder().performances(performances).failures(failures)
