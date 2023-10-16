@@ -77,8 +77,8 @@ public class TimestreamServiceImpl implements TimestreamService {
         + "SELECT binned_timestamp, status, avg_response_time " 
         + "FROM "
         //this select with the where condition on seqnum deletes all the duplicates time that will be created with the approximation keeping the lowest time
-        + "(SELECT * ,  row_number() over (partition by binned_timestamp order by binned_timestamp desc) as seqnum FROM "
-        + "(SELECT eservice_record_id ,status,bin(time,"+ (pollingFrequency * months) +"m) as binned_timestamp, cast(avg(response_time) as int) as avg_response_time "
+        + "(SELECT * ,  row_number() over (partition by binned_timestamp order by binned_timestamp desc,num_status desc) as seqnum FROM "
+        + "(SELECT eservice_record_id ,status,bin(time,"+ (pollingFrequency * months) +"m) as binned_timestamp, cast(avg(response_time) as int) as avg_response_time,count(status) as num_status "
         + "FROM  " + database + "." + table + " "
         + "WHERE time between " 
         + (Objects.nonNull(startDate) ? "'" + startDate.format(DateTimeFormatter.ofPattern(TIME_FORMAT)) + "' " : "ago(1d) ") 
